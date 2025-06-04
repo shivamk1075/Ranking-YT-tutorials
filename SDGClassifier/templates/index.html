@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>YouTube Sentiment UI</title>
+  <script src="https://cdn.socket.io/4.7.1/socket.io.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; }
+    #log { border: 1px solid #ccc; height: 200px; overflow-y: scroll; padding: .5rem;}
+    #result { margin-top: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>YouTube Tutorial Sentiment</h1>
+  <label>Video URL: <input id="videoURL" /></label>
+  <label>Max comments: <input id="maxComments" type="number" value="100" /></label>
+  <button id="runBtn">Run</button>
+
+  <div id="log"></div>
+  <div id="result"></div>
+
+  <script>
+    const socket = io();
+    const logEl = document.getElementById('log');
+    const resEl = document.getElementById('result');
+    document.getElementById('runBtn').onclick = () => {
+      logEl.innerHTML = '';
+      resEl.innerHTML = '';
+      const vid = document.getElementById('videoURL').value.trim();
+      const maxc = document.getElementById('maxComments').value;
+      if (!vid) return alert('Enter a video URL');
+      socket.emit('start_pipeline', { video_url: vid, max_comments: maxc });
+    };
+    socket.on('log', data => {
+      logEl.innerHTML += `<div>${data.msg}</div>`;
+      logEl.scrollTop = logEl.scrollHeight;
+    });
+    socket.on('result', data => {
+      const d = data.distribution;
+      resEl.innerHTML = `
+        <p>Video-level label: ${data.video_label}</p>
+        <p>Distribution: 👍 ${d.POSITIVE} | 👎 ${d.NEGATIVE}</p>
+      `;
+    });
+  </script>
+
+
+  <input id="topic" placeholder="Search for tutorials..." />
+<button id="searchBtn">Search</button>
+<div id="searchResults"></div>
+
+<script>
+  document.getElementById('searchBtn').onclick = () => {
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) return alert('Enter a topic');
+    logEl.innerHTML = '';
+    resEl.innerHTML = '';
+    document.getElementById('searchResults').innerHTML = '';
+    socket.emit('search_topic', { search_term: topic, limit: 5 });
+  };
+
+  socket.on('search_results', data => {
+    let html = '<h3>Recommended Tutorials:</h3><ol>';
+    data.results.forEach(r => {
+      html += `<li>
+        <a href="${r.url}" target="_blank">${r.title}</a> by ${r.uploader} (${r.duration})<br>
+        <b>Label:</b> ${r.video_label} | 👍 ${r.positive} 👎 ${r.negative}
+      </li>`;
+    });
+    html += '</ol>';
+    document.getElementById('searchResults').innerHTML = html;
+  });
+</script>
+
+</body>
+</html>
