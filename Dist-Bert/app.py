@@ -18,6 +18,10 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 import re
 from urllib.parse import urlparse, parse_qs
 
+
+import nltk
+nltk.data.path.append('nltk_data')
+
 def extract_video_id(url_or_id: str) -> str | None:
     # Case 1: Already a valid 11-character ID (e.g., "p1bfK8ZJgkE")
     if re.fullmatch(r"[\w-]{11}", url_or_id):
