@@ -9,5 +9,7 @@ seaborn
 wordcloud
 flask
 flask-socketio
-python-dotenv
 google-api-python-client
+python-dotenv
+eventlet
+
