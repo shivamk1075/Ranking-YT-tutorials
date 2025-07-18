@@ -138,12 +138,19 @@ if __name__ == '__main__':
     print(extract_video_id("https://www.youtube.com/shorts/p1bfK8ZJgkE"))  # Shorts → "p1bfK8ZJgkE"
     print(extract_video_id("invalid"))  # → None
 
+<<<<<<< HEAD
     # import eventlet
     # eventlet.monkey_patch()
 
     # if __name__ == '__main__':
     #     socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+=======
+    import eventlet
+    eventlet.monkey_patch()
+>>>>>>> f89903dc86586dba5e952c4a01ae85a38b302407
 
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    if __name__ == '__main__':
+        socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    # socketio.run(app, host='0.0.0.0', port=5000, debug=True)
 
 

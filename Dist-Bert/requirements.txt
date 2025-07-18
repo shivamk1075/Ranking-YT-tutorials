@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 transformers
 torch
 pandas
@@ -11,3 +12,20 @@ flask
 flask-socketio
 python-dotenv
 google-api-python-client
+=======
+transformers
+torch
+pandas
+numpy
+scikit-learn
+nltk
+matplotlib
+seaborn
+wordcloud
+flask
+flask-socketio
+google-api-python-client
+python-dotenv
+eventlet
+
+>>>>>>> f89903dc86586dba5e952c4a01ae85a38b302407
