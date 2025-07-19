@@ -3,7 +3,10 @@ import { io } from "socket.io-client";
 import "./App.css";
 
 // const socket = io("http://localhost:5000"); // Adjust if your backend runs elsewhere
-const socket = io("https://nodistractyoutube.onrender.com", {
+// const socket = io("https://nodistractyoutube.onrender.com", {
+//   transports: ["websocket"],
+// });
+const socket = io("https://rankingyt-web.onrender.com", {
   transports: ["websocket"],
 });
 
