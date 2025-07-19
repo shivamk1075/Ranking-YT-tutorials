@@ -22,9 +22,12 @@ def preprocess(text):
     return ' '.join(tokens)
 
 
+# # Load the vectorizer and SGDClassifier model
+# vectorizer = joblib.load(r"C:\Users\natur\Desktop\Technologies\Projects\Ranking-YT-Tutorials\Github version\SDGClassifier\src\tfidf_vectorizer.pkl")
+# model = joblib.load(r"C:\Users\natur\Desktop\Technologies\Projects\Ranking-YT-Tutorials\Github version\SDGClassifier\src\SGDClassifier_model.pkl")
 # Load the vectorizer and SGDClassifier model
-vectorizer = joblib.load(r"C:\Users\natur\Desktop\Projects\Ranking-YT-Tutorials\Classifiers\src\tfidf_vectorizer.pkl")
-model = joblib.load(r"C:\Users\natur\Desktop\Projects\Ranking-YT-Tutorials\Classifiers\src\SGDClassifier_model.pkl")
+vectorizer = joblib.load("src/tfidf_vectorizer.pkl")
+model = joblib.load("src/SGDClassifier_model.pkl")
 
 def classify_comments(comments: list[str]) -> list[str]:
     """
