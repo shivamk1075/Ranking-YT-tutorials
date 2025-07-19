@@ -33,24 +33,24 @@ def preprocess(text):
 DATA_PATH = "test.csv"
 df = pd.read_csv(DATA_PATH)
 
-# ✅ Keep all three classes
+# Keep all three classes
 df = df[df['Sentiment'].str.upper().isin(["POSITIVE", "NEGATIVE", "NEUTRAL"])]
 
 comments = df['CommentText'].astype(str).tolist()
 true_labels = df['Sentiment'].str.upper().tolist()
 
 # ---------- Load Vectorizer + Model ----------
-print("\n✅ Loading TF-IDF + SGDClassifier...")
+print("\n Loading TF-IDF + SGDClassifier...")
 vectorizer = joblib.load(r"C:\Users\natur\Desktop\Technologies\Projects\Ranking-YT-Tutorials\Original\SDGClassifier model\src\tfidf_vectorizer.pkl")
 classifier = joblib.load(r"C:\Users\natur\Desktop\Technologies\Projects\Ranking-YT-Tutorials\Original\SDGClassifier model\src\SGDClassifier_model.pkl")
 
 # ---------- Predict ----------
-print("\n✅ Predicting with SGDClassifier...")
+print("\n Predicting with SGDClassifier...")
 processed_comments = [preprocess(c) for c in tqdm(comments)]
 X_test = vectorizer.transform(processed_comments)
 preds_raw = classifier.predict(X_test)
 
-# ✅ Map numeric predictions to labels
+#  Map numeric predictions to labels
 label_map = {
     0: "NEGATIVE",
     1: "NEUTRAL",
@@ -63,12 +63,12 @@ df['pred_sgd'] = preds_sgd
 df.to_csv("logs/sgd_predictions_multiclass.csv", index=False)
 
 # ---------- Evaluation ----------
-print("\n📊 Evaluation for SGDClassifier (Multiclass):")
+print("\n Evaluation for SGDClassifier (Multiclass):")
 sgd_report = classification_report(true_labels, preds_sgd, digits=4)
 print(sgd_report)
 
 with open("logs/sgd_report_multiclass.txt", "w", encoding="utf-8") as f:
-    f.write("📊 Evaluation for SGDClassifier (Multiclass):\n")
+    f.write(" Evaluation for SGDClassifier (Multiclass):\n")
     f.write(sgd_report)
 
 # --- Confusion Matrix ---
