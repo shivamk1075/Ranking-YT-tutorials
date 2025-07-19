@@ -10,7 +10,7 @@ const socket = io("https://nodistractyoutube.onrender.com", {
 
 function App() {
   const [videoId, setVideoId] = useState("");
-  const [maxComments, setMaxComments] = useState(100);s
+  const [maxComments, setMaxComments] = useState(100);
   const [log, setLog] = useState([]);
   const [topic, setTopic] = useState("");
   const [results, setResults] = useState([]);
