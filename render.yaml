@@ -13,7 +13,7 @@ services:
         value: 5000
 
   - type: web
-    name: RankingYT
+    name: RankingYT-web
     env: node
     rootDir: SDGClassifier/client
     buildCommand: |
