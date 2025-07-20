@@ -6,9 +6,13 @@ import "./App.css";
 // const socket = io("https://nodistractyoutube.onrender.com", {
 //   transports: ["websocket"],
 // });
-const socket = io("https://rankingyt-web.onrender.com", {
+// const socket = io("https://rankingyt-web.onrender.com", {
+//   transports: ["websocket"],
+// });
+const socket = io("https://rankerbackend.onrender.com/", {
   transports: ["websocket"],
 });
+
 
 
 function App() {
