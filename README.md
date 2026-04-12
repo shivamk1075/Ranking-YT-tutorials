@@ -1,4 +1,4 @@
-<img src="data
+<img src="/data
 /66d2148fae0a661745b4fa35_Sentiment analysis.png" alt="Header image showing sentiment analysis visualization" width="100%"/>
 
 # YouTube Tutorial Ranker
