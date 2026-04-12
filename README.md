@@ -173,7 +173,7 @@ npm start
 
 ### Examples
 
-_<img src="data/Sentiment_analysis.png" alt="Header image showing sentiment analysis visualization" width="70%"/>_
+_<img src="data/Frontend_Sentiment.png" alt="Header image showing sentiment analysis visualization" width="70%"/>_
 
 #### Sentiment Distribution per Video
 
