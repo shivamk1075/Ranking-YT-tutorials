@@ -44,26 +44,27 @@ Three independent modeling strategies were implemented and compared — from a c
 ### Architecture
 
 ```
-Keyword Input
-     │
-     ▼
-YouTube Search (yt_search.py)
-     │
-     ▼
-Comment Fetch (data_fetch.py)
-     │
-     ▼
-Preprocessing (preprocess.py)
-     │
-     ▼
-Sentiment Classification ──────┬─── Custom DistilBERT (fine-tuned on YouTube)
-     │                         ├─── Pre-trained DistilBERT (SST-2)
-     │                         └─── TF-IDF + SGDClassifier
-     ▼
-Score Aggregation (aggregate.py)
-     │
-     ▼
-Ranked Tutorial List + Visualizations
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+│    React Frontend   │    │   Flask Backend     │    │  Sentiment Models   │
+│                     │    │                     │    │                     │
+│ • Keyword Search    │◄──►│ • Route Engine      │◄──►│ • Fine-tuned BERT   │
+│ • Ranked Results    │    │ • SocketIO (RT)     │    │ • Pre-trained BERT  │
+│ • Visualizations    │    │ • Video ID Parser   │    │ • TF-IDF + SGD      │
+│ • Score Display     │    │ • Pipeline Trigger  │    │ • Score Aggregator  │
+└─────────────────────┘    └─────────────────────┘    └─────────────────────┘
+          │                          │                          │
+          └──────────────────────────┼──────────────────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │         Data Pipeline           │
+                    │                                 │
+                    │ • yt_search.py  (Search)        │
+                    │ • data_fetch.py (Comments)      │
+                    │ • preprocess.py (Clean & NLP)   │
+                    │ • classify.py   (Inference)     │
+                    │ • aggregate.py  (Score/Rank)    │
+                    │ • visualize.py  (Charts)        │
+                    └─────────────────────────────────┘
 ```
 
 ### Model Results
@@ -77,7 +78,13 @@ All three models were evaluated on held-out test data. Below are the results fro
 | NEGATIVE | 0.75 | 0.83 | 0.79 |
 | POSITIVE | 0.81 | 0.72 | 0.76 |
 
-Confusion matrix: 14,349 true negatives / 12,425 true positives / 2,838 false positives / 4,867 false negatives.
+```
+Confusion Matrix:
+                 Predicted
+                 NEG      POS
+Actual  NEG    14,349    2,838
+        POS     4,867   12,425
+```
 
 A solid out-of-the-box result for a model trained on movie reviews (SST-2), applied without any fine-tuning to YouTube comments.
 
@@ -91,7 +98,14 @@ A solid out-of-the-box result for a model trained on movie reviews (SST-2), appl
 | NEUTRAL | 0.53 | 0.61 | 0.57 |
 | POSITIVE | 0.70 | 0.60 | 0.65 |
 
-Confusion matrix: 10,076 / 10,369 / 10,379 correctly classified across classes.
+```
+Confusion Matrix:
+                  Predicted
+                  NEG      NEU      POS
+Actual  NEG    10,076    5,219    1,892
+        NEU     4,318   10,369    2,445
+        POS     3,048    3,865   10,379
+```
 
 The only model to support **3-class classification** including a Neutral label. Performance is lower overall, which is expected given the harder task and lighter model — but inference is extremely fast with no GPU required.
 
@@ -104,7 +118,13 @@ The only model to support **3-class classification** including a Neutral label. 
 | NEGATIVE | 0.86 | 0.91 | 0.88 |
 | POSITIVE | 0.90 | 0.86 | 0.88 |
 
-Confusion matrix: 7,758 true negatives / 7,407 true positives / 816 false positives / 1,209 false negatives.
+```
+Confusion Matrix:
+                 Predicted
+                 NEG     POS
+Actual  NEG    7,758     816
+        POS    1,209   7,407
+```
 
 Fine-tuning DistilBERT directly on YouTube comment data yields a **substantial improvement** over the pre-trained SST-2 baseline — +9 F1 points across both classes. This is the recommended model for production use.
 
