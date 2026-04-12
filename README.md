@@ -24,9 +24,9 @@ Three independent modeling strategies were implemented and compared — from a c
 
 - I implemented **three distinct sentiment classification approaches**, each fully self-contained:
 
-  - **Custom Fine-Tuned DistilBERT** (`Complex model/`): A DistilBERT model fine-tuned end-to-end on labeled YouTube comment data using TensorFlow and HuggingFace Transformers. Includes scripts for fine-tuning, model conversion, and inference.
+  - **Custom Fine-Tuned DistilBERT** (`Complex model/`): A DistilBERT model fine-tuned end-to-end on labeled YouTube comment data using TensorFlow and HuggingFace Transformers. Includes scripts for fine-tuning, model conversion, and inference. This is the **best performing model** — see results below.
   - **Pre-Trained DistilBERT** (`Dist-Bert model/`): Uses `distilbert-base-uncased-finetuned-sst-2-english` off the shelf — no training required. Fast and strong baseline for comparison.
-  - **SGDClassifier** (`SDGClassifier model/`): A classical ML pipeline using TF-IDF vectorization and a Stochastic Gradient Descent classifier (scikit-learn). Model and vectorizer serialized with `joblib` for lightweight deployment.
+  - **SGDClassifier** (`SDGClassifier model/`): A classical ML pipeline using TF-IDF vectorization and a Stochastic Gradient Descent classifier (scikit-learn). Supports **3-class classification** (Negative / Neutral / Positive). Model and vectorizer serialized with `joblib` for lightweight deployment.
 
 - Each approach follows the **same modular pipeline** structured under `src/`:
   - `yt_search.py` — Search YouTube for videos by keyword
@@ -56,7 +56,7 @@ Comment Fetch (data_fetch.py)
 Preprocessing (preprocess.py)
      │
      ▼
-Sentiment Classification ──────┬─── Custom DistilBERT (fine-tuned)
+Sentiment Classification ──────┬─── Custom DistilBERT (fine-tuned on YouTube)
      │                         ├─── Pre-trained DistilBERT (SST-2)
      │                         └─── TF-IDF + SGDClassifier
      ▼
@@ -65,6 +65,58 @@ Score Aggregation (aggregate.py)
      ▼
 Ranked Tutorial List + Visualizations
 ```
+
+### Model Results
+
+All three models were evaluated on held-out test data. Below are the results from the metric report.
+
+#### 1. Pre-Trained DistilBERT (`distilbert-base-uncased-finetuned-sst-2-english`) — Binary
+
+| Class | Precision | Recall | F1-Score |
+|---|---|---|---|
+| NEGATIVE | 0.75 | 0.83 | 0.79 |
+| POSITIVE | 0.81 | 0.72 | 0.76 |
+
+Confusion matrix: 14,349 true negatives / 12,425 true positives / 2,838 false positives / 4,867 false negatives.
+
+A solid out-of-the-box result for a model trained on movie reviews (SST-2), applied without any fine-tuning to YouTube comments.
+
+---
+
+#### 2. TF-IDF + SGDClassifier — Multiclass (Negative / Neutral / Positive)
+
+| Class | Precision | Recall | F1-Score |
+|---|---|---|---|
+| NEGATIVE | 0.59 | 0.59 | 0.59 |
+| NEUTRAL | 0.53 | 0.61 | 0.57 |
+| POSITIVE | 0.70 | 0.60 | 0.65 |
+
+Confusion matrix: 10,076 / 10,369 / 10,379 correctly classified across classes.
+
+The only model to support **3-class classification** including a Neutral label. Performance is lower overall, which is expected given the harder task and lighter model — but inference is extremely fast with no GPU required.
+
+---
+
+#### 3. Fine-Tuned DistilBERT (`distilbert-finetuned-youtubetf`) — Binary ✦ Best Model
+
+| Class | Precision | Recall | F1-Score |
+|---|---|---|---|
+| NEGATIVE | 0.86 | 0.91 | 0.88 |
+| POSITIVE | 0.90 | 0.86 | 0.88 |
+
+Confusion matrix: 7,758 true negatives / 7,407 true positives / 816 false positives / 1,209 false negatives.
+
+Fine-tuning DistilBERT directly on YouTube comment data yields a **substantial improvement** over the pre-trained SST-2 baseline — +9 F1 points across both classes. This is the recommended model for production use.
+
+---
+
+#### Summary
+
+| Model | Task | F1 (Negative) | F1 (Positive) | Speed | GPU Required |
+|---|---|---|---|---|---|
+| Pre-trained DistilBERT (SST-2) | Binary | 0.79 | 0.76 | Medium | Recommended |
+| TF-IDF + SGDClassifier | Multiclass | 0.59 | 0.65 | Fast | No |
+| **Fine-tuned DistilBERT** | **Binary** | **0.88** | **0.88** | Medium | Recommended |
 
 ### Use
 
@@ -78,8 +130,8 @@ cd youtube-tutorial-ranker/
 Choose your preferred approach and install its dependencies:
 
 ```bash
-# Example: Pre-trained DistilBERT approach
-cd "Dist-Bert model/"
+# Example: Fine-tuned DistilBERT approach (recommended)
+cd "Complex model/"
 pip install -r requirements.txt
 ```
 
@@ -110,14 +162,6 @@ _[Add example visualization: bar chart or heatmap of sentiment scores across vid
 #### Ranking Output
 
 _[Add example table: video titles, sentiment scores, and final rank]_
-
-### Model Comparison
-
-| Approach | Type | Training Required | Speed | Notes |
-|---|---|---|---|---|
-| Custom DistilBERT | Transformer (fine-tuned) | Yes | Slow | Highest domain fit |
-| Pre-trained DistilBERT | Transformer (SST-2) | No | Medium | Strong zero-shot baseline |
-| TF-IDF + SGDClassifier | Classical ML | Yes (fast) | Fast | Lightweight deployment |
 
 ### References & Inspiration
 
