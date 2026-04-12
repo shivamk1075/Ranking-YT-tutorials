@@ -3,7 +3,6 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
 
-# your pipeline modules
 from src.yt_search import yt_search
 from src.data_fetch import fetch_comments
 from src.preprocess import preprocess_comments
@@ -60,11 +59,11 @@ def index():
 @socketio.on('start_pipeline')
 def handle_start(data):
     raw_input = data.get('video_url', '').strip()
-    print(f"Received input: '{raw_input}'")  # <-- Add this
+    print(f"Received input: '{raw_input}'") 
     video_id = extract_video_id(raw_input)
-    print(f"Extracted video_id: '{video_id}'")  # <-- And this
+    print(f"Extracted video_id: '{video_id}'")
     if not video_id:
-        emit('log', {'msg': '❌ Invalid YouTube video URL or ID.'})
+        emit('log', {'msg': 'Invalid YouTube video URL or ID.'})
         # emit('log', {'msg':video_id})
         return  # Stop if invalid
     # video_id = data.get('video_id')
