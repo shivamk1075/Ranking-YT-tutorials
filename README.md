@@ -177,11 +177,7 @@ _<img src="data/Frontend_Sentiment.png" alt="Header image showing sentiment anal
 
 #### Sentiment Distribution per Video
 
-_[Add example visualization: bar chart or heatmap of sentiment scores across videos]_
-
-#### Ranking Output
-
-_[Add example table: video titles, sentiment scores, and final rank]_
+_<img src="data/SingleVideo.png" alt="Header image showing sentiment analysis visualization" width="70%"/>_
 
 ### References & Inspiration
 
