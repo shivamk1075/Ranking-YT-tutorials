@@ -173,7 +173,7 @@ npm start
 
 ### Examples
 
-_[Add screenshot of the React frontend with ranked tutorial list]_
+_<img src="data/Sentiment_analysis.png" alt="Header image showing sentiment analysis visualization" width="70%"/>_
 
 #### Sentiment Distribution per Video
 
