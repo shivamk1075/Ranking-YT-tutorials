@@ -1,18 +1,18 @@
 <img src="data/Sentiment_analysis.png" alt="Header image showing sentiment analysis visualization" width="80%"/>
 
-# YouTube Tutorial Ranker
+# CommentScore
 
-### Using NLP and sentiment analysis to rank YouTube tutorials by the quality of their audience reception
+### Using NLP and sentiment analysis to score YouTube tutorials by the quality of their audience reception
 
 _A modular, end-to-end pipeline combining transformer models and classical ML to surface the best tutorials on any topic. By [Your Name]_
 
 Finding a **good tutorial on YouTube** is harder than it should be. View counts and likes are gameable, thumbnails are misleading, and the algorithm optimizes for engagement — not educational quality. But **comments don't lie**. Viewers who genuinely learn something say so. Viewers who waste 20 minutes say that too.
 
-This project treats **comment sentiment as a proxy for tutorial quality** and builds a full pipeline — from search to ranked output — that lets you compare tutorials on any topic through the lens of how their audiences actually responded.
+This project treats **comment sentiment as a proxy for tutorial quality** and builds a full pipeline — from search to scored output — that lets you compare tutorials on any topic through the lens of how their audiences actually responded.
 
 ### Goal of the Project
 
-The goal was to build a **reproducible, modular ranking system** that:
+The goal was to build a **reproducible, modular scoring system** that:
 1. Searches YouTube for tutorials on a given keyword
 2. Fetches and preprocesses comments at scale
 3. Classifies sentiment using one of three ML approaches
@@ -48,7 +48,7 @@ Three independent modeling strategies were implemented and compared — from a c
 │    React Frontend   │    │   Flask Backend     │    │  Sentiment Models   │
 │                     │    │                     │    │                     │
 │ • Keyword Search    │◄──►│ • Route Engine      │◄──►│ • Fine-tuned BERT   │
-│ • Ranked Results    │    │ • SocketIO (RT)     │    │ • Pre-trained BERT  │
+│ • Scored Results    │    │ • SocketIO (RT)     │    │ • Pre-trained BERT  │
 │ • Visualizations    │    │ • Video ID Parser   │    │ • TF-IDF + SGD      │
 │ • Score Display     │    │ • Pipeline Trigger  │    │ • Score Aggregator  │
 └─────────────────────┘    └─────────────────────┘    └─────────────────────┘
@@ -143,8 +143,8 @@ Fine-tuning DistilBERT directly on YouTube comment data yields a **substantial i
 Each modeling approach is self-contained in its own folder with its own `requirements.txt`. To get started:
 
 ```bash
-git clone https://github.com/your-username/youtube-tutorial-ranker.git
-cd youtube-tutorial-ranker/
+git clone https://github.com/your-username/CommentScore.git
+cd CommentScore/
 ```
 
 Choose your preferred approach and install its dependencies:

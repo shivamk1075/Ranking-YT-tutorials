@@ -1,5 +1,3 @@
-# src/aggregate.py
-
 import pandas as pd
 from typing import List
 
@@ -14,7 +12,6 @@ def aggregate_video_sentiment(comments: List[str],
         "comment": comments,
         "sentiment": labels
     })
-    # Compute normalized counts
     prop = df.sentiment.value_counts(normalize=True)
     
     if prop.get("POSITIVE", 0) > 0.5:
@@ -24,8 +21,6 @@ def aggregate_video_sentiment(comments: List[str],
     return "Partially Useful"
 
 if __name__ == "__main__":
-    # Quick smoke test
     sample_comments = ["good", "bad", "okay", "awesome", "terrible"]
     sample_labels   = ["POSITIVE", "NEGATIVE", "NEUTRAL", "POSITIVE", "NEGATIVE"]
     print(aggregate_video_sentiment(sample_comments, sample_labels))
-    # Expect "Partially Useful" since POS=2/5, NEG=2/5

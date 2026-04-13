@@ -1,15 +1,11 @@
-# src/preprocess.py
-
 import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Ensure NLTK resources are downloaded
 nltk.download("stopwords")
 nltk.download("wordnet")
 
-# Initialize stop-words and lemmatizer
 STOP_WORDS = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
 
@@ -32,7 +28,6 @@ def preprocess_comments(comments: list[str]) -> list[str]:
     return [clean_comment(c) for c in comments]
 
 if __name__ == "__main__":
-    # Quick test
     sample = [
         "This video is GREAT!!! Thanks 😊 https://youtu.be/xyz",
         "I didn't like the part about Windows 11."
