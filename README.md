@@ -29,13 +29,15 @@ Three independent modeling strategies were implemented and compared — from a c
   - **SGDClassifier** (`SDGClassifier model/`): A classical ML pipeline using TF-IDF vectorization and a Stochastic Gradient Descent classifier (scikit-learn). Supports **3-class classification** (Negative / Neutral / Positive). Model and vectorizer serialized with `joblib` for lightweight deployment.
 
 - Each approach follows the **same modular pipeline** structured under `src/`:
-  - `yt_search.py` — Search YouTube for videos by keyword
-  - `data_fetch.py` — Download comments for a given video ID
-  - `preprocess.py` — Clean and normalize comment text (tokenization, stopword removal, lemmatization)
-  - `classify.py` — Predict sentiment labels using the approach-specific model
-  - `aggregate.py` — Summarize comment-level predictions into a video-level score
-  - `visualize.py` — Generate visualizations of per-video sentiment distributions
-  - `evaluate.py` — Evaluate model performance with F-score and accuracy metrics
+  | Stage | Module | Responsibility |
+  |---|---|---|
+  |  Search | `yt_search.py` | Query YouTube for videos by keyword |
+  |  Fetch | `data_fetch.py` | Download comments for a given video ID |
+  |  Preprocess | `preprocess.py` | Tokenization, stopword removal, lemmatization |
+  |  Classify | `classify.py` | Sentiment inference via the approach-specific model |
+  |  Aggregate | `aggregate.py` | Roll up comment-level scores into a per-video ranking |
+  |  Visualize | `visualize.py` | Generate sentiment distribution charts per video |
+  |  Evaluate | `evaluate.py` | Compute F-score and accuracy on held-out test data |
 
 - A **Flask backend with SocketIO** powers real-time updates as comments are fetched and classified, exposed through a **React frontend** for live demo and visualization.
 
@@ -138,6 +140,14 @@ Fine-tuning DistilBERT directly on YouTube comment data yields a **substantial i
 | TF-IDF + SGDClassifier | Multiclass | 0.59 | 0.65 | Fast | No |
 | **Fine-tuned DistilBERT** | **Binary** | **0.88** | **0.88** | Medium | Recommended |
 
+### Live Demo
+ 
+A live deployment of the app is hosted on Render and accessible here:
+ 
+**🔗 [https://rankingyt-web.onrender.com](https://rankingyt-web.onrender.com)**
+ 
+> **Note:** The app is hosted on a free Render instance — it may take 30–60 seconds to wake up on first load.
+
 ### Use
 
 Each modeling approach is self-contained in its own folder with its own `requirements.txt`. To get started:
@@ -168,8 +178,6 @@ cd yt-sentiment-ui/
 npm install
 npm start
 ```
-
-> **Note:** Model weights and datasets are excluded from the repository due to size constraints. Scripts and notebooks for training are included — follow the fine-tuning notebooks to reproduce the weights for the custom DistilBERT approach.
 
 ### Examples
 
