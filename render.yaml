@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: Rankerbackend
+    name: commentscore-backend
     env: python
     region: oregon
     plan: free
@@ -13,7 +13,7 @@ services:
         value: 5000
 
   - type: web
-    name: RankingYT-web
+    name: commentscore-web
     env: node
     rootDir: SDGClassifier/client
     buildCommand: |

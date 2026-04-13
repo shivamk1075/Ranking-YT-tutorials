@@ -1,70 +1,214 @@
-# Getting Started with Create React App
+<img src="data/Sentiment_analysis.png" alt="Header image showing sentiment analysis visualization" width="80%"/>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# YouTube Tutorial Ranker
 
-## Available Scripts
+### Using NLP and sentiment analysis to rank YouTube tutorials by the quality of their audience reception
 
-In the project directory, you can run:
+_A modular, end-to-end pipeline combining transformer models and classical ML to surface the best tutorials on any topic. By [Your Name]_
 
-### `npm start`
+Finding a **good tutorial on YouTube** is harder than it should be. View counts and likes are gameable, thumbnails are misleading, and the algorithm optimizes for engagement — not educational quality. But **comments don't lie**. Viewers who genuinely learn something say so. Viewers who waste 20 minutes say that too.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This project treats **comment sentiment as a proxy for tutorial quality** and builds a full pipeline — from search to ranked output — that lets you compare tutorials on any topic through the lens of how their audiences actually responded.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Goal of the Project
 
-### `npm test`
+The goal was to build a **reproducible, modular ranking system** that:
+1. Searches YouTube for tutorials on a given keyword
+2. Fetches and preprocesses comments at scale
+3. Classifies sentiment using one of three ML approaches
+4. Aggregates comment-level scores into a **per-video ranking**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Three independent modeling strategies were implemented and compared — from a classical TF-IDF pipeline to a custom fine-tuned transformer.
 
-### `npm run build`
+### What I Did
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- I implemented **three distinct sentiment classification approaches**, each fully self-contained:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  - **Custom Fine-Tuned DistilBERT** (`Complex model/`): A DistilBERT model fine-tuned end-to-end on labeled YouTube comment data using TensorFlow and HuggingFace Transformers. Includes scripts for fine-tuning, model conversion, and inference. This is the **best performing model** — see results below.
+  - **Pre-Trained DistilBERT** (`Dist-Bert model/`): Uses `distilbert-base-uncased-finetuned-sst-2-english` off the shelf — no training required. Fast and strong baseline for comparison.
+  - **SGDClassifier** (`SDGClassifier model/`): A classical ML pipeline using TF-IDF vectorization and a Stochastic Gradient Descent classifier (scikit-learn). Supports **3-class classification** (Negative / Neutral / Positive). Model and vectorizer serialized with `joblib` for lightweight deployment.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Each approach shares the **same modular pipeline** under `src/`, with each stage handled by a dedicated module:
 
-### `npm run eject`
+  | Stage | Module | Responsibility |
+  |---|---|---|
+  |  Search | `yt_search.py` | Query YouTube for videos by keyword |
+  |  Fetch | `data_fetch.py` | Download comments for a given video ID |
+  |  Preprocess | `preprocess.py` | Tokenization, stopword removal, lemmatization |
+  |  Classify | `classify.py` | Sentiment inference via the approach-specific model |
+  |  Aggregate | `aggregate.py` | Roll up comment-level scores into a per-video ranking |
+  |  Visualize | `visualize.py` | Generate sentiment distribution charts per video |
+  |  Evaluate | `evaluate.py` | Compute F-score and accuracy on held-out test data |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- The **training dataset** used for fine-tuning and evaluating the models is the [**YouTube Comments Sentiment Dataset**](https://www.kaggle.com/datasets/amaanpoonawala/youtube-comments-sentiment-dataset) by Amaan Poonawala, available on Kaggle under **CC BY-SA 4.0**:
+  - **1 million+ labeled YouTube comments** spanning programming, news, sports, politics, and more
+  - Each comment annotated as **Positive, Neutral, or Negative**
+  - Rich metadata per record: `CommentID`, `VideoID`, `VideoTitle`, `AuthorName`, `CommentText`, `Sentiment`, `Likes`, `Replies`, `PublishedAt`, `CountryCode`, `CategoryID`
+  - Labels generated using a combination of **AI annotation (Gemini)** and manual validation
+  - **Augmentation applied** to address class imbalance — synthetic comment variants were generated to balance underrepresented Negative and Neutral classes
+  - Comments span **2013–2025**, covering diverse content categories and regions
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- A **Flask backend with SocketIO** powers real-time updates as comments are fetched and classified, exposed through a **React frontend** for live demo and visualization.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **Jupyter notebooks** are included throughout for experimentation, model evaluation, and reproducibility.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Architecture
 
-## Learn More
+```
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+│    React Frontend   │    │   Flask Backend     │    │  Sentiment Models   │
+│                     │    │                     │    │                     │
+│ • Keyword Search    │◄──►│ • Route Engine      │◄──►│ • Fine-tuned BERT   │
+│ • Ranked Results    │    │ • SocketIO (RT)     │    │ • Pre-trained BERT  │
+│ • Visualizations    │    │ • Video ID Parser   │    │ • TF-IDF + SGD      │
+│ • Score Display     │    │ • Pipeline Trigger  │    │ • Score Aggregator  │
+└─────────────────────┘    └─────────────────────┘    └─────────────────────┘
+          │                          │                          │
+          └──────────────────────────┼──────────────────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │         Data Pipeline           │
+                    │                                 │
+                    │ • yt_search.py  (Search)        │
+                    │ • data_fetch.py (Comments)      │
+                    │ • preprocess.py (Clean & NLP)   │
+                    │ • classify.py   (Inference)     │
+                    │ • aggregate.py  (Score/Rank)    │
+                    │ • visualize.py  (Charts)        │
+                    └─────────────────────────────────┘
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Model Results
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+All three models were evaluated on held-out test data. Below are the results from the metric report.
 
-### Code Splitting
+#### 1. Pre-Trained DistilBERT (`distilbert-base-uncased-finetuned-sst-2-english`) — Binary
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+| Class | Precision | Recall | F1-Score |
+|---|---|---|---|
+| NEGATIVE | 0.75 | 0.83 | 0.79 |
+| POSITIVE | 0.81 | 0.72 | 0.76 |
 
-### Analyzing the Bundle Size
+```
+Confusion Matrix:
+                 Predicted
+                 NEG      POS
+Actual  NEG    14,349    2,838
+        POS     4,867   12,425
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+A solid out-of-the-box result for a model trained on movie reviews (SST-2), applied without any fine-tuning to YouTube comments.
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+#### 2. TF-IDF + SGDClassifier — Multiclass (Negative / Neutral / Positive)
 
-### Advanced Configuration
+| Class | Precision | Recall | F1-Score |
+|---|---|---|---|
+| NEGATIVE | 0.59 | 0.59 | 0.59 |
+| NEUTRAL | 0.53 | 0.61 | 0.57 |
+| POSITIVE | 0.70 | 0.60 | 0.65 |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+Confusion Matrix:
+                  Predicted
+                  NEG      NEU      POS
+Actual  NEG    10,076    5,219    1,892
+        NEU     4,318   10,369    2,445
+        POS     3,048    3,865   10,379
+```
 
-### Deployment
+The only model to support **3-class classification** including a Neutral label. Performance is lower overall, which is expected given the harder task and lighter model — but inference is extremely fast with no GPU required.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+#### 3. Fine-Tuned DistilBERT (`distilbert-finetuned-youtubetf`) — Binary ✦ Best Model
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Class | Precision | Recall | F1-Score |
+|---|---|---|---|
+| NEGATIVE | 0.86 | 0.91 | 0.88 |
+| POSITIVE | 0.90 | 0.86 | 0.88 |
+
+```
+Confusion Matrix:
+                 Predicted
+                 NEG     POS
+Actual  NEG    7,758     816
+        POS    1,209   7,407
+```
+
+Fine-tuning DistilBERT directly on YouTube comment data yields a **substantial improvement** over the pre-trained SST-2 baseline — +9 F1 points across both classes. This is the recommended model for production use.
+
+---
+
+#### Summary
+
+| Model | Task | F1 (Negative) | F1 (Positive) | Speed | GPU Required |
+|---|---|---|---|---|---|
+| Pre-trained DistilBERT (SST-2) | Binary | 0.79 | 0.76 | Medium | Recommended |
+| TF-IDF + SGDClassifier | Multiclass | 0.59 | 0.65 | Fast | No |
+| **Fine-tuned DistilBERT** | **Binary** | **0.88** | **0.88** | Medium | Recommended |
+
+### Live Demo
+ 
+A live deployment of the app is hosted on Render and accessible here:
+ 
+**🔗 [https://rankingyt-web.onrender.com](https://rankingyt-web.onrender.com)**
+ 
+> **Note:** The app is hosted on a free Render instance — it may take 30–60 seconds to wake up on first load.
+ 
+### Use
+
+Each modeling approach is self-contained in its own folder with its own `requirements.txt`. To get started:
+
+```bash
+git clone https://github.com/your-username/youtube-tutorial-ranker.git
+cd youtube-tutorial-ranker/
+```
+
+Choose your preferred approach and install its dependencies:
+
+```bash
+# Example: Fine-tuned DistilBERT approach (recommended)
+cd "Complex model/"
+pip install -r requirements.txt
+```
+
+Then launch the Flask backend:
+
+```bash
+python app.py
+```
+
+And in a separate terminal, start the React frontend:
+
+```bash
+cd yt-sentiment-ui/
+npm install
+npm start
+```
+
+### Ranking Output
+
+_<img src="data/Frontend_Sentiment.png" alt="Header image showing sentiment analysis visualization" width="70%"/>_
+
+#### Sentiment Distribution per Video
+
+_<img src="data/SingleVideo.png" alt="Header image showing sentiment analysis visualization" width="70%"/>_
+
+### References & Inspiration
+
+- [**YouTube Comments Sentiment Analysis** — Ritika Singh et al.](https://ritikasingh95.github.io/Documents/Publications/YOUTUBE%20COMMENTS%20SENTIMENT%20ANALYSIS.pdf): Motivated the multi-algorithm comparison and the preprocessing pipeline (lemmatization, tokenization, stopword removal, n-grams). Guided evaluation using F-score and accuracy.
+
+- [**Ranking of tutorials on YouTube based on the analysis of feelings made to their comments** — Goyzueta Torres et al., Innosoft Journal](https://revistas.ulasalle.edu.pe/innosoft/article/view/66/71): Directly inspired the core idea of using aggregated comment sentiment as a ranking signal, and the rationale for BERT-based approaches at scale.
+
+### Thanks
+
+- ... to **[Amaan Poonawala](https://www.kaggle.com/amaanpoonawala)** for the [YouTube Comments Sentiment Dataset](https://www.kaggle.com/datasets/amaanpoonawala/youtube-comments-sentiment-dataset) — 1M+ labeled comments that made training and evaluation possible.
+- ... to the **HuggingFace team** for the Transformers library and the pre-trained SST-2 DistilBERT model.
+- ... to **Ritika Singh et al.** and **Goyzueta Torres et al.** for the research that shaped this project's design.
+- ... to the open-source community behind `scikit-learn`, `Flask`, and `SocketIO` for making rapid ML prototyping accessible.
+
+---
+
+_For questions or suggestions, feel free to open an issue or reach out._

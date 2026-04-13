@@ -66,7 +66,7 @@ function App() {
   return (
     <div className="container">
       <header>
-        <i className="fas fa-graduation-cap"></i> YouTube Tutorial Sentiment
+        <i className="fas fa-graduation-cap"></i> CommentScore
       </header>
       <div className="input-row">
         <input
@@ -131,7 +131,7 @@ function App() {
         )}
       </div>
       <footer>
-        &copy; 2025 YouTube Sentiment Analyzer &mdash; React UI
+        &copy; 2025 CommentScore &mdash; React UI
       </footer>
     </div>
   );
