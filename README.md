@@ -4,7 +4,7 @@
 
 ### Using NLP and sentiment analysis to score YouTube tutorials by the quality of their audience reception
 
-_A modular, end-to-end pipeline combining transformer models and classical ML to surface the best tutorials on any topic. By [Your Name]_
+_A modular, end-to-end pipeline combining transformer models and classical ML to surface the best tutorials on any topic. By Shivam_
 
 Finding a **good tutorial on YouTube** is harder than it should be. View counts and likes are gameable, thumbnails are misleading, and the algorithm optimizes for engagement — not educational quality. But **comments don't lie**. Viewers who genuinely learn something say so. Viewers who waste 20 minutes say that too.
 
